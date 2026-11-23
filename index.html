@@ -1,0 +1,794 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Trillion — Revenue Engine</title>
+<meta name="description" content="Model any business to a trillion-dollar month: pick a revenue model, tune the inputs, check the unit economics, and export a plan.">
+<style>
+  :root {
+    --bg: #f7f6f2;
+    --surface: #ffffff;
+    --surface-2: #efede6;
+    --ink: #17171a;
+    --ink-2: #55555e;
+    --line: #dddbd2;
+    --accent: #0f7b5f;
+    --accent-ink: #ffffff;
+    --accent-soft: #dff1ea;
+    --warn: #b4540a;
+    --bad: #b42318;
+    --gold: #a77b12;
+    --radius: 14px;
+    --shadow: 0 1px 2px rgba(0,0,0,.04), 0 8px 24px rgba(0,0,0,.06);
+    --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0f1012; --surface: #17191c; --surface-2: #1f2226; --ink: #f2f1ec; --ink-2: #a3a3ab;
+      --line: #2c2f34; --accent: #3ecf9e; --accent-ink: #06261c; --accent-soft: #143328;
+      --warn: #f0a155; --bad: #ff7a6e; --gold: #e3b84a;
+      --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.35);
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0f1012; --surface: #17191c; --surface-2: #1f2226; --ink: #f2f1ec; --ink-2: #a3a3ab;
+    --line: #2c2f34; --accent: #3ecf9e; --accent-ink: #06261c; --accent-soft: #143328;
+    --warn: #f0a155; --bad: #ff7a6e; --gold: #e3b84a;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.35);
+    color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font: 16px/1.55 var(--sans); overflow-x: hidden;
+  }
+  a { color: var(--accent); }
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 0 16px; }
+  .num { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+  .muted { color: var(--ink-2); }
+  h1, h2, h3 { line-height: 1.15; margin: 0; letter-spacing: -.02em; }
+  h2 { font-size: clamp(1.6rem, 3.5vw, 2.3rem); }
+  h3 { font-size: 1.05rem; }
+  section { padding: 72px 0; border-top: 1px solid var(--line); }
+  .eyebrow { font: 600 .75rem/1 var(--sans); letter-spacing: .14em; text-transform: uppercase; color: var(--accent); margin-bottom: 14px; }
+  .lede { font-size: 1.1rem; color: var(--ink-2); max-width: 62ch; margin: 14px 0 0; }
+
+  /* Nav */
+  nav { position: sticky; top: 0; z-index: 10; background: color-mix(in srgb, var(--bg) 85%, transparent); backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
+  nav .wrap { display: flex; align-items: center; justify-content: space-between; height: 60px; gap: 12px; }
+  .brand { font-weight: 800; font-size: 1.15rem; letter-spacing: -.03em; display: flex; align-items: center; gap: 8px; color: var(--ink); text-decoration: none; }
+  .brand-mark { width: 26px; height: 26px; border-radius: 7px; background: var(--accent); color: var(--accent-ink); display: grid; place-items: center; font-size: .85rem; font-weight: 800; }
+  .nav-links { display: flex; gap: 22px; align-items: center; }
+  .nav-links a { color: var(--ink-2); text-decoration: none; font-size: .92rem; }
+  .nav-links a:hover { color: var(--ink); }
+  .icon-btn { background: var(--surface); border: 1px solid var(--line); color: var(--ink); border-radius: 10px; width: 38px; height: 38px; cursor: pointer; display: grid; place-items: center; }
+  @media (max-width: 720px) { .nav-links a { display: none; } }
+
+  /* Hero */
+  .hero { padding: 84px 0 64px; border-top: 0; }
+  .hero h1 { font-size: clamp(2.4rem, 7vw, 4.6rem); font-weight: 800; letter-spacing: -.045em; max-width: 14ch; }
+  .hero h1 em { font-style: normal; color: var(--accent); }
+  .hero-grid { display: grid; grid-template-columns: 1.25fr 1fr; gap: 40px; align-items: end; }
+  @media (max-width: 880px) { .hero-grid { grid-template-columns: 1fr; } }
+  .cta-row { display: flex; gap: 12px; margin-top: 28px; flex-wrap: wrap; }
+  .btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 20px; border-radius: 12px; font: 600 .98rem var(--sans); border: 1px solid transparent; cursor: pointer; text-decoration: none; transition: transform .12s ease, background .2s; }
+  .btn:active { transform: translateY(1px); }
+  .btn-primary { background: var(--accent); color: var(--accent-ink); }
+  .btn-primary:hover { filter: brightness(1.06); }
+  .btn-ghost { background: var(--surface); color: var(--ink); border-color: var(--line); }
+  .btn-ghost:hover { background: var(--surface-2); }
+
+  .ticker { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 22px; box-shadow: var(--shadow); }
+  .ticker .label { font-size: .85rem; color: var(--ink-2); }
+  .ticker .big { font-size: clamp(1.8rem, 4.5vw, 2.6rem); font-weight: 700; margin: 6px 0 14px; color: var(--ink); word-break: break-all; }
+  .ticker-rows { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .ticker-rows div { background: var(--surface-2); border-radius: 10px; padding: 10px 12px; }
+  .ticker-rows b { display: block; font-size: 1.05rem; }
+  .ticker-rows span { font-size: .78rem; color: var(--ink-2); }
+
+  /* Cards & layout */
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 22px; box-shadow: var(--shadow); min-width: 0; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+  @media (max-width: 880px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } }
+  .section-head { display: flex; justify-content: space-between; align-items: end; gap: 24px; flex-wrap: wrap; margin-bottom: 32px; }
+
+  /* Tabs */
+  .tabs { display: inline-flex; background: var(--surface-2); padding: 4px; border-radius: 12px; gap: 4px; flex-wrap: wrap; }
+  .tab { border: 0; background: transparent; color: var(--ink-2); padding: 9px 14px; border-radius: 9px; font: 600 .9rem var(--sans); cursor: pointer; }
+  .tab[aria-selected="true"] { background: var(--surface); color: var(--ink); box-shadow: 0 1px 3px rgba(0,0,0,.12); }
+
+  /* Controls */
+  .control { margin-bottom: 22px; }
+  .control-top { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-bottom: 8px; }
+  .control label { font-weight: 600; font-size: .95rem; }
+  .control .hint { font-size: .8rem; color: var(--ink-2); margin-top: 4px; }
+  .control output { font-family: var(--mono); font-weight: 600; color: var(--accent); white-space: nowrap; }
+  input[type=range] { width: 100%; accent-color: var(--accent); height: 28px; margin: 0; }
+  .presets { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 22px; }
+  .chip { border: 1px solid var(--line); background: var(--surface); color: var(--ink); padding: 6px 12px; border-radius: 999px; font: 500 .82rem var(--sans); cursor: pointer; }
+  .chip:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* Results */
+  .result-big { font-size: clamp(2rem, 5vw, 3rem); font-weight: 700; letter-spacing: -.03em; margin: 4px 0 2px; word-break: break-word; }
+  .progress { height: 12px; border-radius: 999px; background: var(--surface-2); overflow: hidden; margin: 14px 0 6px; }
+  .progress > i { display: block; height: 100%; width: 0; background: var(--accent); border-radius: 999px; transition: width .35s ease; }
+  .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 18px; }
+  .stat { background: var(--surface-2); border-radius: 10px; padding: 12px; min-width: 0; }
+  .stat b { display: block; font-family: var(--mono); font-size: 1.05rem; word-break: break-word; }
+  .stat span { font-size: .78rem; color: var(--ink-2); }
+  .callout { margin-top: 18px; padding: 14px 16px; border-radius: 10px; font-size: .92rem; border-left: 4px solid var(--accent); background: var(--accent-soft); }
+  .callout.warn { border-color: var(--warn); background: color-mix(in srgb, var(--warn) 12%, var(--surface)); }
+  .callout.bad { border-color: var(--bad); background: color-mix(in srgb, var(--bad) 12%, var(--surface)); }
+
+  /* Bars */
+  .bars { display: grid; gap: 12px; }
+  .bar-row { display: grid; grid-template-columns: 150px 1fr 92px; gap: 12px; align-items: center; font-size: .9rem; }
+  .bar-track { height: 22px; background: var(--surface-2); border-radius: 6px; overflow: hidden; }
+  .bar-fill { height: 100%; background: var(--ink-2); border-radius: 6px; transition: width .4s ease; min-width: 2px; }
+  .bar-row.you .bar-fill { background: var(--accent); }
+  .bar-row.goal .bar-fill { background: var(--gold); }
+  .bar-row.you .bar-name { font-weight: 700; color: var(--accent); }
+  .bar-val { text-align: right; font-family: var(--mono); font-size: .85rem; }
+  @media (max-width: 560px) { .bar-row { grid-template-columns: 96px 1fr 76px; gap: 8px; font-size: .8rem; } }
+
+  /* Verdict */
+  .verdict { display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px; border-radius: 999px; font-weight: 700; font-size: .85rem; }
+  .verdict.good { background: var(--accent-soft); color: var(--accent); }
+  .verdict.ok { background: color-mix(in srgb, var(--warn) 15%, var(--surface)); color: var(--warn); }
+  .verdict.bad { background: color-mix(in srgb, var(--bad) 15%, var(--surface)); color: var(--bad); }
+
+  /* Playbook */
+  .step { counter-increment: step; position: relative; padding-top: 48px; }
+  .step::before { content: counter(step, decimal-leading-zero); position: absolute; top: 22px; left: 22px; font: 700 .85rem var(--mono); color: var(--accent); }
+  .playbook { counter-reset: step; }
+  .step p { margin: 8px 0 0; color: var(--ink-2); font-size: .95rem; }
+  .check { display: flex; gap: 10px; align-items: flex-start; margin-top: 14px; font-size: .9rem; cursor: pointer; }
+  .check input { accent-color: var(--accent); width: 18px; height: 18px; margin-top: 2px; flex: none; }
+
+  /* Truth */
+  .truth { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  @media (max-width: 880px) { .truth { grid-template-columns: 1fr; } }
+  .truth ul { margin: 12px 0 0; padding-left: 20px; color: var(--ink-2); }
+  .truth li { margin: 6px 0; }
+
+  footer { border-top: 1px solid var(--line); padding: 36px 0 48px; color: var(--ink-2); font-size: .85rem; }
+  footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+
+  .toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%) translateY(20px); background: var(--ink); color: var(--bg); padding: 10px 18px; border-radius: 10px; font-size: .9rem; opacity: 0; pointer-events: none; transition: all .25s ease; z-index: 50; }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; scroll-behavior: auto !important; } }
+  html { scroll-behavior: smooth; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap">
+    <a class="brand" href="#top"><span class="brand-mark">T</span>Trillion</a>
+    <div class="nav-links">
+      <a href="#engine">Engine</a>
+      <a href="#economics">Unit economics</a>
+      <a href="#scale">Scale</a>
+      <a href="#playbook">Playbook</a>
+      <button class="icon-btn" id="themeBtn" aria-label="Toggle color theme" title="Toggle theme">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<header class="hero" id="top">
+  <div class="wrap hero-grid">
+    <div>
+      <div class="eyebrow">Revenue engine</div>
+      <h1>Engineer your <em>trillion-dollar</em> month.</h1>
+      <p class="lede">Choose a business model, set the inputs, and see right away how far you are from $1,000,000,000,000 a month. You also get the customers, prices and margins it would take, plus a plan you can export.</p>
+      <div class="cta-row">
+        <a class="btn btn-primary" href="#engine">Open the engine →</a>
+        <button class="btn btn-ghost" id="exportTop">Export my plan</button>
+      </div>
+    </div>
+    <div class="ticker" aria-live="off">
+      <div class="label">Revenue a $1T/month business has booked since you opened this page</div>
+      <div class="big num" id="tick">$0</div>
+      <div class="ticker-rows">
+        <div><b class="num">$380,257</b><span>per second</span></div>
+        <div><b class="num">$32.9B</b><span>per day</span></div>
+        <div><b class="num">$12T</b><span>per year</span></div>
+        <div><b class="num">~11%</b><span>of world GDP</span></div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ENGINE -->
+<section id="engine">
+  <div class="wrap">
+    <div class="section-head">
+      <div>
+        <div class="eyebrow">01 · The engine</div>
+        <h2>Pick a model. Pull the levers.</h2>
+        <p class="lede">Every revenue model comes down to <b>volume × price</b>. The engine works out the gap to $1T and the volume you'd need at your price.</p>
+      </div>
+      <div class="tabs" role="tablist" aria-label="Revenue model">
+        <button class="tab" role="tab" aria-selected="true" data-model="sub">Subscription</button>
+        <button class="tab" role="tab" aria-selected="false" data-model="market">Marketplace</button>
+        <button class="tab" role="tab" aria-selected="false" data-model="ads">Advertising</button>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="presets" id="presets"></div>
+        <div id="controls"></div>
+      </div>
+
+      <div class="card">
+        <div class="muted" style="font-size:.9rem">Monthly revenue</div>
+        <div class="result-big num" id="revOut">$0</div>
+        <div class="muted num" id="revSub" style="font-size:.9rem"></div>
+        <div class="progress" aria-hidden="true"><i id="goalBar"></i></div>
+        <div style="display:flex;justify-content:space-between;font-size:.82rem" class="muted">
+          <span id="goalPct">0% of $1T goal</span><span>$1T / mo</span>
+        </div>
+        <div class="stats">
+          <div class="stat"><b id="sAnnual">—</b><span>Annual run-rate</span></div>
+          <div class="stat"><b id="sGdp">—</b><span>Share of world GDP</span></div>
+          <div class="stat"><b id="sNeed">—</b><span id="sNeedLabel">Volume needed for $1T</span></div>
+          <div class="stat"><b id="sMult">—</b><span>Growth multiple to goal</span></div>
+        </div>
+        <div class="callout" id="engineNote"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ECONOMICS -->
+<section id="economics">
+  <div class="wrap">
+    <div class="section-head">
+      <div>
+        <div class="eyebrow">02 · Unit economics</div>
+        <h2>Revenue is vanity. Unit economics are survival.</h2>
+        <p class="lede">A trillion in revenue doesn't help if every customer loses you money. Check that each one pays back what it cost to get them.</p>
+      </div>
+    </div>
+    <div class="grid-2">
+      <div class="card" id="ueControls"></div>
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+          <h3>Health check</h3>
+          <span class="verdict" id="ueVerdict">—</span>
+        </div>
+        <div class="stats">
+          <div class="stat"><b id="uLtv">—</b><span>Lifetime value (gross profit)</span></div>
+          <div class="stat"><b id="uRatio">—</b><span>LTV : CAC <em class="muted">(target ≥ 3)</em></span></div>
+          <div class="stat"><b id="uPayback">—</b><span>CAC payback <em class="muted">(target ≤ 12 mo)</em></span></div>
+          <div class="stat"><b id="uLife">—</b><span>Avg. customer lifetime</span></div>
+        </div>
+        <div class="callout" id="ueNote"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SCALE -->
+<section id="scale">
+  <div class="wrap">
+    <div class="section-head">
+      <div>
+        <div class="eyebrow">03 · Scale check</div>
+        <h2>You vs. the largest companies on Earth.</h2>
+        <p class="lede">Monthly revenue, on a log scale so every bar stays visible. Company figures are approximate: the latest full-year revenue divided by 12.</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="bars" id="bars"></div>
+      <p class="muted" style="font-size:.78rem;margin:18px 0 0">Approximate annual revenue: Walmart ≈ $681B (FY2025), Amazon ≈ $638B (2024), Apple ≈ $391B (FY2024), Alphabet ≈ $350B (2024), Microsoft ≈ $245B (FY2024). World GDP ≈ $110T (2024). These are for scale only, not investment data.</p>
+    </div>
+  </div>
+</section>
+
+<!-- PLAYBOOK -->
+<section id="playbook">
+  <div class="wrap">
+    <div class="section-head">
+      <div>
+        <div class="eyebrow">04 · Playbook</div>
+        <h2>From $0 to your first trillion. In order.</h2>
+        <p class="lede">Every company on the chart above went through these stages in this order. Tick each one off as you finish it. Your progress is saved in this browser.</p>
+      </div>
+      <div class="muted num" id="pbProgress">0 / 6 complete</div>
+    </div>
+    <div class="grid-3 playbook" id="playbookGrid"></div>
+  </div>
+</section>
+
+<!-- TRUTH -->
+<section id="truth">
+  <div class="wrap">
+    <div class="eyebrow">05 · Straight talk</div>
+    <h2>What a trillion-dollar month actually requires.</h2>
+    <div class="truth" style="margin-top:28px">
+      <div class="card">
+        <h3>The arithmetic</h3>
+        <ul>
+          <li>$1T/month is $12T/year, about <b>11% of everything humanity produces</b>, and roughly 18× the revenue of the largest company on Earth.</li>
+          <li>Even if <b>every one of the ~8.2 billion people alive</b> paid you, each would have to spend about <b>$122 a month</b>.</li>
+          <li>No company has ever been close. The engine above tells you exactly how far off any plan is.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>What actually compounds</h3>
+        <ul>
+          <li>A problem painful enough that people pay to fix it <b>this week</b>.</li>
+          <li>Unit economics that improve with scale, so each customer costs less and earns more.</li>
+          <li>Distribution you own: brand, network effects, or a channel others can't copy.</li>
+          <li>Years of iteration. A website is just the storefront, and the business behind it is what earns money.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="cta-row" style="margin-top:28px">
+      <button class="btn btn-primary" id="exportBottom">Export my plan (.txt)</button>
+      <button class="btn btn-ghost" id="copyLink">Copy shareable link</button>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <span>© <span id="yr"></span> Trillion. A planning tool, not financial advice.</span>
+    <span>Everything runs in your browser. No data leaves this page.</span>
+  </div>
+</footer>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(() => {
+  "use strict";
+
+  // ---------- Constants ----------
+  const GOAL = 1e12;                       // $1T per month
+  const WORLD_GDP_MONTH = 110e12 / 12;     // ≈ $9.17T per month
+  const HUMANS = 8.2e9;
+  const SECONDS_PER_MONTH = 365.25 / 12 * 86400;
+
+  const COMPANIES = [
+    { name: "Walmart",   m: 681e9 / 12 },
+    { name: "Amazon",    m: 638e9 / 12 },
+    { name: "Apple",     m: 391e9 / 12 },
+    { name: "Alphabet",  m: 350e9 / 12 },
+    { name: "Microsoft", m: 245e9 / 12 },
+  ];
+
+  // ---------- Formatting ----------
+  const money = (v, digits = 1) => {
+    if (!isFinite(v)) return "∞";
+    const a = Math.abs(v), s = v < 0 ? "-" : "";
+    if (a >= 1e12) return s + "$" + trim((a / 1e12).toFixed(digits)) + "T";
+    if (a >= 1e9)  return s + "$" + trim((a / 1e9).toFixed(digits)) + "B";
+    if (a >= 1e6)  return s + "$" + trim((a / 1e6).toFixed(digits)) + "M";
+    if (a >= 1e4)  return s + "$" + trim((a / 1e3).toFixed(digits)) + "K";
+    if (a >= 100)  return s + "$" + Math.round(a).toLocaleString("en-US");
+    return s + "$" + a.toFixed(2);
+  };
+  const count = (v) => {
+    if (!isFinite(v)) return "∞";
+    if (v >= 1e12) return trim((v / 1e12).toFixed(1)) + "T";
+    if (v >= 1e9)  return trim((v / 1e9).toFixed(2)) + "B";
+    if (v >= 1e6)  return trim((v / 1e6).toFixed(1)) + "M";
+    if (v >= 1e3)  return trim((v / 1e3).toFixed(1)) + "K";
+    return Math.round(v).toLocaleString("en-US");
+  };
+  const pct = (v) => {
+    if (!isFinite(v)) return "∞";
+    if (v === 0) return "0%";
+    if (v < 0.0001) return "<0.01%";
+    if (v < 0.01) return (v * 100).toFixed(2) + "%";
+    if (v < 10) return trim((v * 100).toFixed(1)) + "%";
+    return Math.round(v * 100).toLocaleString("en-US") + "%";
+  };
+  const mult = (v) => !isFinite(v) ? "∞" : v <= 1 ? "Goal hit ✓" : (v >= 1000 ? count(v) : trim(v.toFixed(1))) + "×";
+  function trim(s) { return s.indexOf(".") >= 0 ? s.replace(/\.?0+$/, "") : s; }
+  const $ = (id) => document.getElementById(id);
+
+  // ---------- Log slider helpers ----------
+  const STEPS = 1000;
+  const toSlider = (v, min, max) => Math.round((Math.log10(v) - Math.log10(min)) / (Math.log10(max) - Math.log10(min)) * STEPS);
+  const fromSlider = (t, min, max) => {
+    const raw = Math.pow(10, Math.log10(min) + (Math.log10(max) - Math.log10(min)) * (t / STEPS));
+    // round to 3 significant figures for clean numbers
+    const p = Math.pow(10, Math.floor(Math.log10(raw)) - 2);
+    return Math.round(raw / p) * p;
+  };
+
+  // ---------- Models ----------
+  const MODELS = {
+    sub: {
+      label: "Subscription",
+      fields: [
+        { key: "customers", label: "Paying customers", min: 100, max: 8.2e9, log: true, fmt: count, hint: "People or businesses paying you every month." },
+        { key: "price", label: "Price per month (ARPU)", min: 1, max: 100000, log: true, fmt: (v) => money(v, 2), hint: "Average revenue per paying customer." },
+      ],
+      defaults: { customers: 10000, price: 49 },
+      presets: [
+        { name: "Indie SaaS", v: { customers: 2000, price: 29 } },
+        { name: "Streaming giant", v: { customers: 300e6, price: 15.5 } },
+        { name: "Enterprise SaaS", v: { customers: 50000, price: 4000 } },
+        { name: "Every human", v: { customers: 8.2e9, price: 122 } },
+      ],
+      revenue: (s) => s.customers * s.price,
+      need: (s) => ({ v: GOAL / s.price, label: "Customers needed at this price", fmt: count, isPeople: true }),
+    },
+    market: {
+      label: "Marketplace",
+      fields: [
+        { key: "gmv", label: "Gross merchandise value / month", min: 1e4, max: 1e14, log: true, fmt: money, hint: "Total value transacted through your platform." },
+        { key: "take", label: "Take rate", min: 0.5, max: 40, log: false, step: 0.5, fmt: (v) => trim(v.toFixed(1)) + "%", hint: "Your cut of each transaction." },
+      ],
+      defaults: { gmv: 5e6, take: 12 },
+      presets: [
+        { name: "Niche marketplace", v: { gmv: 2e6, take: 15 } },
+        { name: "Ride-hailing scale", v: { gmv: 13e9, take: 22 } },
+        { name: "Global e-commerce", v: { gmv: 70e9, take: 12 } },
+        { name: "Card network", v: { gmv: 1.2e12, take: 2 } },
+      ],
+      revenue: (s) => s.gmv * s.take / 100,
+      need: (s) => ({ v: GOAL / (s.take / 100), label: "GMV needed at this take rate", fmt: money, isGmv: true }),
+    },
+    ads: {
+      label: "Advertising",
+      fields: [
+        { key: "mau", label: "Monthly active users", min: 1000, max: 8.2e9, log: true, fmt: count, hint: "People who use the product each month." },
+        { key: "arpu", label: "Ad revenue per user / month", min: 0.01, max: 500, log: true, fmt: (v) => money(v, 2), hint: "Big social networks earn about $1–$5 per user per month worldwide." },
+      ],
+      defaults: { mau: 1e6, arpu: 0.8 },
+      presets: [
+        { name: "Growing app", v: { mau: 5e6, arpu: 0.5 } },
+        { name: "Social network", v: { mau: 3e9, arpu: 4 } },
+        { name: "Search engine", v: { mau: 4e9, arpu: 4.5 } },
+        { name: "Every human", v: { mau: 8.2e9, arpu: 122 } },
+      ],
+      revenue: (s) => s.mau * s.arpu,
+      need: (s) => ({ v: GOAL / s.arpu, label: "Users needed at this ARPU", fmt: count, isPeople: true }),
+    },
+  };
+
+  // ---------- State (URL hash → localStorage → defaults) ----------
+  const state = {
+    model: "sub",
+    vals: { sub: { ...MODELS.sub.defaults }, market: { ...MODELS.market.defaults }, ads: { ...MODELS.ads.defaults } },
+    ue: { price: 49, cac: 300, margin: 80, churn: 3 },
+    done: [],
+  };
+
+  const store = {
+    get(k) { try { return JSON.parse(localStorage.getItem(k)); } catch { return null; } },
+    set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch { /* storage unavailable */ } },
+  };
+
+  function loadState() {
+    const saved = store.get("trillion.v1");
+    if (saved && typeof saved === "object") mergeState(saved);
+    if (location.hash.length > 1) {
+      try {
+        const fromHash = JSON.parse(decodeURIComponent(atob(location.hash.slice(1))));
+        mergeState(fromHash);
+      } catch { /* ignore non-state hashes like #engine */ }
+    }
+  }
+  function mergeState(src) {
+    if (MODELS[src.model]) state.model = src.model;
+    if (src.vals) for (const m in MODELS) if (src.vals[m]) {
+      for (const f of MODELS[m].fields) {
+        const v = Number(src.vals[m][f.key]);
+        if (isFinite(v)) state.vals[m][f.key] = Math.min(f.max, Math.max(f.min, v));
+      }
+    }
+    if (src.ue) for (const k in state.ue) {
+      const v = Number(src.ue[k]);
+      if (isFinite(v)) state.ue[k] = v;
+    }
+    if (Array.isArray(src.done)) state.done = src.done.filter((i) => Number.isInteger(i) && i >= 0 && i < 6);
+  }
+  let saveTimer;
+  function save() {
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(() => store.set("trillion.v1", state), 150);
+  }
+
+  // ---------- Engine UI ----------
+  function renderControls() {
+    const m = MODELS[state.model];
+    const vals = state.vals[state.model];
+
+    $("presets").innerHTML = "";
+    m.presets.forEach((p) => {
+      const b = document.createElement("button");
+      b.className = "chip"; b.type = "button"; b.textContent = p.name;
+      b.addEventListener("click", () => { Object.assign(vals, p.v); renderControls(); });
+      $("presets").appendChild(b);
+    });
+
+    const box = $("controls");
+    box.innerHTML = "";
+    m.fields.forEach((f) => {
+      const id = "f_" + state.model + "_" + f.key;
+      const wrap = document.createElement("div");
+      wrap.className = "control";
+      wrap.innerHTML =
+        `<div class="control-top"><label for="${id}">${f.label}</label><output id="${id}_o" for="${id}"></output></div>` +
+        `<input type="range" id="${id}">` +
+        `<div class="hint">${f.hint}</div>`;
+      box.appendChild(wrap);
+      const input = wrap.querySelector("input");
+      const out = wrap.querySelector("output");
+      if (f.log) {
+        input.min = 0; input.max = STEPS; input.step = 1;
+        input.value = toSlider(vals[f.key], f.min, f.max);
+      } else {
+        input.min = f.min; input.max = f.max; input.step = f.step || 1;
+        input.value = vals[f.key];
+      }
+      out.textContent = f.fmt(vals[f.key]);
+      input.setAttribute("aria-valuetext", f.fmt(vals[f.key]));
+      input.addEventListener("input", () => {
+        const v = f.log ? fromSlider(+input.value, f.min, f.max) : +input.value;
+        vals[f.key] = Math.min(f.max, Math.max(f.min, v));
+        out.textContent = f.fmt(vals[f.key]);
+        input.setAttribute("aria-valuetext", out.textContent);
+        updateEngine();
+      });
+    });
+
+    document.querySelectorAll(".tab").forEach((t) => t.setAttribute("aria-selected", String(t.dataset.model === state.model)));
+    updateEngine();
+  }
+
+  function updateEngine() {
+    const m = MODELS[state.model];
+    const s = state.vals[state.model];
+    const rev = m.revenue(s);
+    const share = rev / GOAL;
+    const need = m.need(s);
+
+    $("revOut").textContent = money(rev, 2);
+    $("revSub").textContent = "≈ " + money(rev / SECONDS_PER_MONTH, 2) + " per second";
+    $("goalBar").style.width = Math.min(100, share * 100) + "%";
+    $("goalPct").textContent = pct(share) + " of $1T goal";
+    $("sAnnual").textContent = money(rev * 12);
+    $("sGdp").textContent = pct(rev / WORLD_GDP_MONTH);
+    $("sNeed").textContent = need.fmt(need.v);
+    $("sNeedLabel").textContent = need.label;
+    $("sMult").textContent = mult(GOAL / rev);
+
+    // Contextual guidance
+    const note = $("engineNote");
+    let cls = "callout", msg;
+    const biggest = COMPANIES[0];
+    if (rev >= GOAL) {
+      msg = `<b>On paper, you've hit $1T/month.</b> That's about ${trim((rev / biggest.m).toFixed(0))}× Walmart's monthly revenue and ${pct(rev / WORLD_GDP_MONTH)} of world GDP. Now check whether real buyers exist at this scale.`;
+      cls += rev / WORLD_GDP_MONTH > 0.05 ? " warn" : "";
+    } else if (need.isPeople && need.v > HUMANS) {
+      cls += " bad";
+      msg = `<b>There aren't enough people.</b> At ${money(s.price ?? s.arpu, 2)}/month you'd need ${count(need.v)} customers, which is ${trim((need.v / HUMANS).toFixed(1))}× everyone alive. To get there you'd have to raise the price, add products, or sell to businesses and governments.`;
+    } else if (need.isGmv && need.v > WORLD_GDP_MONTH) {
+      cls += " bad";
+      msg = `<b>That GMV is bigger than the world economy.</b> At a ${trim(s.take.toFixed(1))}% take rate you'd need ${money(need.v)} of transactions a month. World GDP is about ${money(WORLD_GDP_MONTH)} a month.`;
+    } else if (rev >= biggest.m) {
+      cls += " warn";
+      msg = `<b>You'd be the biggest company in history,</b> ahead of Walmart's ~${money(biggest.m)}/month. You'd still need to grow another ${mult(GOAL / rev)} to reach $1T.`;
+    } else if (rev >= 1e9) {
+      msg = `<b>That's a $1B+/month business,</b> which puts you among the largest companies in the world. To reach $1T you'd still need to grow ${mult(GOAL / rev)}.`;
+    } else if (rev >= 83333) {
+      msg = `<b>That's over $1M a year, a real business.</b> Most companies never get here. The quickest way to the next 10× is usually raising the price, not adding customers.`;
+    } else {
+      msg = `<b>Start here.</b> Most giant companies began with a few dozen paying customers. Nail one painful problem before you try to scale.`;
+    }
+    note.className = cls;
+    note.innerHTML = msg;
+
+    renderBars(rev);
+    save();
+  }
+
+  // ---------- Bars ----------
+  function renderBars(rev) {
+    const rows = [
+      { name: "World GDP", m: WORLD_GDP_MONTH },
+      { name: "$1T goal", m: GOAL, cls: "goal" },
+      ...COMPANIES,
+      { name: "You", m: rev, cls: "you" },
+    ].sort((a, b) => b.m - a.m);
+    const lo = 1e3, hi = Math.log10(Math.max(WORLD_GDP_MONTH, rev) * 1.05);
+    const w = (v) => Math.max(0, Math.min(100, (Math.log10(Math.max(v, lo)) - Math.log10(lo)) / (hi - Math.log10(lo)) * 100));
+    $("bars").innerHTML = rows.map((r) =>
+      `<div class="bar-row ${r.cls || ""}"><span class="bar-name">${r.name}</span>` +
+      `<div class="bar-track"><div class="bar-fill" style="width:${w(r.m)}%"></div></div>` +
+      `<span class="bar-val">${money(r.m)}</span></div>`).join("");
+  }
+
+  // ---------- Unit economics ----------
+  const UE_FIELDS = [
+    { key: "price", label: "Revenue per customer / month", min: 1, max: 10000, log: true, fmt: (v) => money(v, 2) },
+    { key: "cac", label: "Customer acquisition cost (CAC)", min: 1, max: 100000, log: true, fmt: (v) => money(v, 2) },
+    { key: "margin", label: "Gross margin", min: 5, max: 95, log: false, step: 1, fmt: (v) => v + "%" },
+    { key: "churn", label: "Monthly churn", min: 0.25, max: 30, log: false, step: 0.25, fmt: (v) => trim(v.toFixed(2)) + "%" },
+  ];
+  function renderUE() {
+    const box = $("ueControls");
+    box.innerHTML = "<h3 style='margin-bottom:18px'>Your inputs</h3>";
+    UE_FIELDS.forEach((f) => {
+      const id = "ue_" + f.key;
+      const wrap = document.createElement("div");
+      wrap.className = "control";
+      wrap.innerHTML = `<div class="control-top"><label for="${id}">${f.label}</label><output for="${id}"></output></div><input type="range" id="${id}">`;
+      box.appendChild(wrap);
+      const input = wrap.querySelector("input"), out = wrap.querySelector("output");
+      state.ue[f.key] = Math.min(f.max, Math.max(f.min, state.ue[f.key]));
+      if (f.log) { input.min = 0; input.max = STEPS; input.step = 1; input.value = toSlider(state.ue[f.key], f.min, f.max); }
+      else { input.min = f.min; input.max = f.max; input.step = f.step; input.value = state.ue[f.key]; }
+      out.textContent = f.fmt(state.ue[f.key]);
+      input.addEventListener("input", () => {
+        state.ue[f.key] = f.log ? fromSlider(+input.value, f.min, f.max) : +input.value;
+        out.textContent = f.fmt(state.ue[f.key]);
+        input.setAttribute("aria-valuetext", out.textContent);
+        updateUE();
+      });
+    });
+    updateUE();
+  }
+  function calcUE() {
+    const { price, cac, margin, churn } = state.ue;
+    const gpMonth = price * margin / 100;
+    const life = 100 / churn;               // months
+    const ltv = gpMonth * life;
+    return { gpMonth, life, ltv, ratio: ltv / cac, payback: cac / gpMonth };
+  }
+  function updateUE() {
+    const u = calcUE();
+    $("uLtv").textContent = money(u.ltv, 2);
+    $("uRatio").textContent = trim(u.ratio.toFixed(1)) + "×";
+    $("uPayback").textContent = u.payback < 1 ? "< 1 mo" : trim(u.payback.toFixed(1)) + " mo";
+    $("uLife").textContent = u.life >= 24 ? trim((u.life / 12).toFixed(1)) + " yrs" : trim(u.life.toFixed(1)) + " mo";
+
+    const v = $("ueVerdict"), n = $("ueNote");
+    if (u.ratio >= 3 && u.payback <= 12) {
+      v.className = "verdict good"; v.textContent = "● Fundable";
+      n.className = "callout";
+      n.innerHTML = `<b>Healthy.</b> Every $1 you spend on acquisition returns $${u.ratio.toFixed(2)} of gross profit, and you earn back CAC in ${trim(u.payback.toFixed(1))} months. Spending more on growth makes sense.`;
+    } else if (u.ratio >= 1) {
+      v.className = "verdict ok"; v.textContent = "● Needs work";
+      n.className = "callout warn";
+      const fix = u.payback > 12 ? "cut CAC or raise the price to shorten payback" : "reduce churn so customers stay longer";
+      n.innerHTML = `<b>Marginal.</b> You make money on each customer, but slowly. Your best lever right now: ${fix}.`;
+    } else {
+      v.className = "verdict bad"; v.textContent = "● Losing money";
+      n.className = "callout bad";
+      n.innerHTML = `<b>Each customer costs more than they're worth.</b> Growing at these numbers makes your losses bigger, not your profits. Fix price, margin, churn, or CAC before you scale.`;
+    }
+    save();
+  }
+
+  // ---------- Playbook ----------
+  const PLAYBOOK = [
+    { t: "Find a hair-on-fire problem", d: "Interview 30 people in one niche. Look for a problem they already spend money or hours on.", c: "10+ people said they'd pay today" },
+    { t: "Sell before you build", d: "Pre-sell a manual or concierge version. Real payments are the only validation that counts.", c: "First 10 paying customers" },
+    { t: "Price for value, not cost", d: "Charge a share of the value you create. Raise prices until about 20% of prospects push back.", c: "Price tested at 3 levels" },
+    { t: "Prove the unit economics", d: "Get LTV:CAC to at least 3× and payback under 12 months, as in the calculator above.", c: "LTV:CAC ≥ 3× on real data" },
+    { t: "Own one channel", d: "Pick one repeatable acquisition channel (SEO, sales, partnerships, community) and master it.", c: "One channel drives 50%+ of growth" },
+    { t: "Expand the surface area", d: "Add products, segments and geographies. Every trillion-dollar company sells far more than one thing.", c: "Second product line live" },
+  ];
+  function renderPlaybook() {
+    $("playbookGrid").innerHTML = PLAYBOOK.map((s, i) =>
+      `<div class="card step"><h3>${s.t}</h3><p>${s.d}</p>` +
+      `<label class="check"><input type="checkbox" data-i="${i}" ${state.done.includes(i) ? "checked" : ""}> <span>${s.c}</span></label></div>`).join("");
+    $("playbookGrid").querySelectorAll("input").forEach((cb) => cb.addEventListener("change", () => {
+      const i = +cb.dataset.i;
+      state.done = cb.checked ? [...new Set([...state.done, i])] : state.done.filter((x) => x !== i);
+      updatePlaybook(); save();
+    }));
+    updatePlaybook();
+  }
+  function updatePlaybook() {
+    $("pbProgress").textContent = `${state.done.length} / ${PLAYBOOK.length} complete`;
+  }
+
+  // ---------- Export / share ----------
+  function planText() {
+    const m = MODELS[state.model], s = state.vals[state.model], rev = m.revenue(s), need = m.need(s), u = calcUE();
+    const line = "─".repeat(48);
+    return [
+      "TRILLION — REVENUE PLAN",
+      "Generated " + new Date().toLocaleString(),
+      line,
+      "MODEL: " + m.label,
+      ...m.fields.map((f) => `  ${f.label}: ${f.fmt(s[f.key])}`),
+      "",
+      `  Monthly revenue:     ${money(rev, 2)}`,
+      `  Annual run-rate:     ${money(rev * 12, 2)}`,
+      `  Progress to $1T/mo:  ${pct(rev / GOAL)}`,
+      `  Growth multiple:     ${mult(GOAL / rev)}`,
+      `  ${need.label}: ${need.fmt(need.v)}`,
+      line,
+      "UNIT ECONOMICS",
+      ...UE_FIELDS.map((f) => `  ${f.label}: ${f.fmt(state.ue[f.key])}`),
+      "",
+      `  LTV (gross profit):  ${money(u.ltv, 2)}`,
+      `  LTV : CAC:           ${u.ratio.toFixed(2)}x`,
+      `  CAC payback:         ${u.payback.toFixed(1)} months`,
+      line,
+      "PLAYBOOK",
+      ...PLAYBOOK.map((p, i) => `  [${state.done.includes(i) ? "x" : " "}] ${i + 1}. ${p.t} — ${p.c}`),
+      line,
+      "Planning tool only. Not financial advice.",
+    ].join("\n");
+  }
+  function exportPlan() {
+    const blob = new Blob([planText()], { type: "text/plain;charset=utf-8" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "trillion-plan.txt";
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    toast("Plan downloaded");
+  }
+  async function copyLink() {
+    const payload = btoa(encodeURIComponent(JSON.stringify({ model: state.model, vals: state.vals, ue: state.ue })));
+    const url = location.href.split("#")[0] + "#" + payload;
+    try { await navigator.clipboard.writeText(url); toast("Link copied to clipboard"); }
+    catch { history.replaceState(null, "", "#" + payload); toast("Link is in your address bar"); }
+  }
+  let toastTimer;
+  function toast(msg) {
+    const t = $("toast"); t.textContent = msg; t.classList.add("show");
+    clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove("show"), 2200);
+  }
+
+  // ---------- Ticker ----------
+  const start = performance.now();
+  const perMs = GOAL / SECONDS_PER_MONTH / 1000;
+  function tick(now) {
+    $("tick").textContent = "$" + Math.floor((now - start) * perMs).toLocaleString("en-US");
+    requestAnimationFrame(tick);
+  }
+
+  // ---------- Theme ----------
+  function initTheme() {
+    const saved = store.get("trillion.theme");
+    if (saved === "light" || saved === "dark") document.documentElement.dataset.theme = saved;
+    $("themeBtn").addEventListener("click", () => {
+      const cur = document.documentElement.dataset.theme ||
+        (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+      const next = cur === "dark" ? "light" : "dark";
+      document.documentElement.dataset.theme = next;
+      store.set("trillion.theme", next);
+    });
+  }
+
+  // ---------- Boot ----------
+  loadState();
+  initTheme();
+  document.querySelectorAll(".tab").forEach((t) => t.addEventListener("click", () => { state.model = t.dataset.model; renderControls(); }));
+  $("exportTop").addEventListener("click", exportPlan);
+  $("exportBottom").addEventListener("click", exportPlan);
+  $("copyLink").addEventListener("click", copyLink);
+  $("yr").textContent = new Date().getFullYear();
+  renderControls();
+  renderUE();
+  renderPlaybook();
+  requestAnimationFrame(tick);
+})();
+</script>
+</body>
+</html>
